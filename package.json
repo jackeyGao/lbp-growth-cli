@@ -22,8 +22,8 @@
   "author": "LBP Growth Team",
   "main": "index.js",
   "bin": {
-    "lbp-growth": "./bin/lbp-growth",
-    "lbp": "./bin/lbp"
+    "lbp-growth": "bin/lbp-growth",
+    "lbp": "bin/lbp"
   },
   "files": [
     "bin/",
