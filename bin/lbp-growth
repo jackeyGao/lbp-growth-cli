@@ -1,0 +1,201 @@
+#!/usr/bin/env node
+
+/**
+ * LBP Growth CLI - Node.js implementation
+ *
+ * Agent-friendly CLI for LBP Growth system
+ */
+
+const { Command } = require('commander');
+const chalk = require('chalk');
+const { loadAk, checkAuth, saveAuth, showAuth } = require('../lib/auth');
+const { createPush } = require('../lib/push');
+const { listTasks, updateTask, deleteTask, getBlocklist } = require('../lib/tasks');
+const { generateReview } = require('../lib/review');
+const { splitCSV } = require('../lib/csv');
+
+const program = new Command();
+
+function outputJSON(data) {
+  console.log(JSON.stringify(data, null, 2));
+}
+
+function requireAk() {
+  const ak = loadAk();
+  if (!ak) {
+    outputJSON({ ok: false, stage: 'auth', error: 'NO_AK', message: '未配置 API Key，请先执行: lbp-growth auth save <AK>' });
+    process.exit(2);
+  }
+  return ak;
+}
+
+program
+  .name('lbp-growth')
+  .description('LBP Growth CLI - Agent 友好的推送任务管理工具')
+  .version('0.1.0');
+
+// Auth commands
+const authCmd = program.command('auth').description('API Key 凭据管理');
+
+authCmd
+  .command('check')
+  .description('检查本地凭据状态')
+  .action(async () => {
+    const result = await checkAuth();
+    outputJSON(result);
+    process.exit(result.ok ? 0 : (result.ak_status === 'missing' ? 2 : 3));
+  });
+
+authCmd
+  .command('save <apiKey>')
+  .description('保存并校验 API Key')
+  .action(async (apiKey) => {
+    const result = await saveAuth(apiKey);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 3);
+  });
+
+authCmd
+  .command('show')
+  .description('显示当前配置的 API Key（脱敏）')
+  .action(() => {
+    const result = showAuth();
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 2);
+  });
+
+// Push command
+program
+  .command('push')
+  .description('创建推送任务')
+  .requiredOption('--name <name>', '推送任务名称')
+  .requiredOption('--format <format>', '推送格式 (card|releaseNote)')
+  .option('--content <content>', '卡片内容（format=card 时必填）')
+  .option('--release-note-ids <ids>', 'Release Note ID 列表，逗号分隔')
+  .option('--apps <apps>', 'app_id 列表，逗号分隔（与 --csv 二选一）')
+  .option('--csv <path>', 'CSV 文件路径')
+  .option('--schedule-type <type>', '调度类型 (immediate|scheduled)', 'immediate')
+  .option('--schedule-time <time>', '定时时间（ISO 格式）')
+  .option('--confirm', '确认执行真实推送', false)
+  .option('--no-strict-limits', '放行 CSV 超过限制')
+  .action(async (options) => {
+    const ak = requireAk();
+    const result = await createPush({
+      ak,
+      name: options.name,
+      formatType: options.format,
+      content: options.content,
+      releaseNoteIds: options.releaseNoteIds,
+      apps: options.apps,
+      csvPath: options.csv,
+      scheduleType: options.scheduleType,
+      scheduleTime: options.scheduleTime,
+      strictLimits: options.strictLimits,
+      confirm: options.confirm,
+    });
+    outputJSON(result);
+    process.exit(result.ok ? 0 : (result.stage === 'args' ? 1 : 4));
+  });
+
+// Tasks commands
+const tasksCmd = program.command('tasks').description('推送任务管理');
+
+tasksCmd
+  .command('list')
+  .description('查询推送任务列表')
+  .option('--day <day>', '查询日期（YYYY-MM-DD）')
+  .option('--page <n>', '页码', '1')
+  .option('--page-size <n>', '每页数量', '20')
+  .action(async (options) => {
+    const ak = requireAk();
+    const result = await listTasks(ak, {
+      day: options.day,
+      page: parseInt(options.page),
+      pageSize: parseInt(options.pageSize),
+    });
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('update <taskId>')
+  .description('更新任务指标')
+  .option('--push-count <n>', '推送次数', parseInt)
+  .option('--read-count <n>', '阅读次数', parseInt)
+  .option('--click-count <n>', '点击次数', parseInt)
+  .option('--read-rate <n>', '阅读率', parseFloat)
+  .option('--action-rate <n>', '行动率', parseFloat)
+  .option('--overall-rate <n>', '综合率', parseFloat)
+  .action(async (taskId, options) => {
+    const ak = requireAk();
+    const result = await updateTask(ak, taskId, options);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('delete <taskId>')
+  .description('删除草稿状态的任务')
+  .option('--confirm', '确认删除', false)
+  .action(async (taskId, options) => {
+    const ak = requireAk();
+    const result = await deleteTask(ak, taskId, options.confirm);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+// CSV commands
+const csvCmd = program.command('csv').description('CSV 处理工具');
+
+csvCmd
+  .command('split <input>')
+  .description('拆分大 CSV 文件')
+  .option('--out-dir <dir>', '输出目录')
+  .option('--rows-per-file <n>', '每文件行数上限', '150000')
+  .option('--prefix <prefix>', '分片文件名前缀', 'part')
+  .action((input, options) => {
+    const result = splitCSV(
+      input,
+      options.outDir,
+      parseInt(options.rowsPerFile),
+      options.prefix
+    );
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 1);
+  });
+
+// Review command
+program
+  .command('review')
+  .description('生成单日推送数据复盘报告')
+  .option('--day <day>', '复盘日期（YYYY-MM-DD，默认昨天）')
+  .option('--page-size <n>', '分页大小', '200')
+  .action(async (options) => {
+    const ak = requireAk();
+    const result = await generateReview(ak, options.day, parseInt(options.pageSize));
+
+    if (result.ok) {
+      console.log(result.reportMd);
+    } else {
+      outputJSON(result);
+    }
+    process.exit(result.ok ? 0 : 4);
+  });
+
+// Blocklist command
+program
+  .command('blocklist')
+  .description('获取退订用户黑名单')
+  .option('-o, --output <file>', '输出到文件路径（JSON 格式）')
+  .action(async (options) => {
+    const ak = requireAk();
+    const result = await getBlocklist(ak, options.output);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+program.parse();
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

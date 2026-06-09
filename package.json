@@ -1,0 +1,47 @@
+{
+  "name": "lbp-growth-cli",
+  "version": "0.1.0",
+  "description": "LBP 实验增长系统 CLI - Agent 友好的推送任务管理工具",
+  "keywords": [
+    "lbp",
+    "growth",
+    "push",
+    "cli",
+    "agent",
+    "skill"
+  ],
+  "homepage": "https://github.com/bytedance/lbp-growth-cli",
+  "bugs": {
+    "url": "https://github.com/bytedance/lbp-growth-cli/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bytedance/lbp-growth-cli.git"
+  },
+  "license": "MIT",
+  "author": "LBP Growth Team",
+  "main": "index.js",
+  "bin": {
+    "lbp-growth": "./bin/lbp-growth",
+    "lbp": "./bin/lbp"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "SKILL.md",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
