@@ -8,9 +8,9 @@
 
 const { Command } = require('commander');
 const chalk = require('chalk');
-const { loadAk, checkAuth, saveAuth, showAuth } = require('../lib/auth');
+const { loadAk, loadCredentials, checkAuth, saveAuth, showAuth } = require('../lib/auth');
 const { createPush } = require('../lib/push');
-const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist } = require('../lib/tasks');
+const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl } = require('../lib/tasks');
 const { generateReview } = require('../lib/review');
 const { splitCSV } = require('../lib/csv');
 
@@ -21,12 +21,17 @@ function outputJSON(data) {
 }
 
 function requireAk() {
-  const ak = loadAk();
-  if (!ak) {
-    outputJSON({ ok: false, stage: 'auth', error: 'NO_AK', message: '未配置 API Key，请先执行: lbp-growth auth save <AK>' });
+  const creds = loadCredentials();
+  if (!creds.apiKey || !creds.bearerToken) {
+    outputJSON({
+      ok: false,
+      stage: 'auth',
+      error: 'NO_CREDENTIALS',
+      message: '未配置 API Key 或 Bearer Token，请先执行: lbp-growth auth save <API_KEY> <BEARER_TOKEN>',
+    });
     process.exit(2);
   }
-  return ak;
+  return creds.apiKey;
 }
 
 program
@@ -47,10 +52,10 @@ authCmd
   });
 
 authCmd
-  .command('save <apiKey>')
-  .description('保存并校验 API Key')
-  .action(async (apiKey) => {
-    const result = await saveAuth(apiKey);
+  .command('save <apiKey> <bearerToken>')
+  .description('保存并校验 API Key 和 Bearer Token')
+  .action(async (apiKey, bearerToken) => {
+    const result = await saveAuth(apiKey, bearerToken);
     outputJSON(result);
     process.exit(result.ok ? 0 : 3);
   });
@@ -152,6 +157,26 @@ tasksCmd
     const result = await getTaskRealtime(ak, taskId);
     outputJSON(result);
     process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('batch-confirm <taskIds...>')
+  .description('生成批量确认草稿任务的 URL（支持 1-20 个 taskId）')
+  .action(async (taskIds) => {
+    const result = generateBatchConfirmUrl(taskIds);
+    outputJSON(result);
+
+    if (result.ok) {
+      console.error('\n' + chalk.yellow('⚠️  提醒：'));
+      console.error(chalk.cyan('请在浏览器中打开以下链接进行批量确认：'));
+      console.error(chalk.underline(result.url));
+      console.error('\n' + chalk.gray('注意：'));
+      result.rules.forEach(rule => {
+        console.error(chalk.gray('  • ' + rule));
+      });
+    }
+
+    process.exit(result.ok ? 0 : 1);
   });
 
 // CSV commands
