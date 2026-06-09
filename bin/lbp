@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('./lbp-growth');
+require(require.resolve('./lbp-growth', { paths: [__dirname] }));
