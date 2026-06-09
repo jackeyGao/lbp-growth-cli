@@ -27,10 +27,26 @@ npx skills add bytedance/lbp-growth-cli
 npx skills run lbp-growth --help
 ```
 
+## 前置要求
+
+在使用前，需要配置 BEARER_TOKEN（联系管理员获取）：
+
+```bash
+# 方式 1: 环境变量（推荐，适合 CI/CD）
+export LBP_BEARER_TOKEN="your_bearer_token_here"
+
+# 方式 2: 全局配置文件
+echo '{ "bearerToken": "your_bearer_token_here" }' > ~/.lbp_growth/config.json
+chmod 600 ~/.lbp_growth/config.json
+
+# 方式 3: 项目级配置文件（仅当前项目）
+echo '{ "bearerToken": "your_bearer_token_here" }' > .lbp-growth.json
+```
+
 ## 快速开始
 
 ```bash
-# 1. 配置 API Key
+# 1. 配置 API Key（个人）
 lbp-growth auth save <YOUR_API_KEY>
 
 # 2. 检查凭据
@@ -193,6 +209,44 @@ npm test -- --coverage
 - `tasks.js`: 85%
 - `review.js`: 84%
 - `auth.js`: 51%
+
+## 安全说明
+
+### BEARER_TOKEN 配置
+
+BEARER_TOKEN 用于服务端认证，**不应硬编码在代码中或提交到版本控制**。
+
+支持以下配置方式（按优先级排序）：
+
+1. **环境变量**（推荐，适合 CI/CD）
+   ```bash
+   export LBP_BEARER_TOKEN="your_bearer_token_here"
+   ```
+
+2. **全局配置文件**
+   ```bash
+   mkdir -p ~/.lbp_growth
+   echo '{ "bearerToken": "your_bearer_token_here" }' > ~/.lbp_growth/config.json
+   chmod 600 ~/.lbp_growth/config.json  # 设置权限，仅当前用户可读
+   ```
+
+3. **项目级配置文件**（仅当前项目）
+   ```bash
+   cp .lbp-growth.json.example .lbp-growth.json
+   # 编辑 .lbp-growth.json，填入你的 token
+   ```
+   
+   ⚠️ **注意**: `.lbp-growth.json` 已添加到 `.gitignore`，不会被提交。
+
+### API Key 配置
+
+API Key 是用户个人的认证凭证，通过 `auth save` 命令保存到本地：
+
+```bash
+lbp-growth auth save <YOUR_API_KEY>
+```
+
+存储位置: `~/.lbp_growth/credentials.json` (权限 600)
 
 ## License
 

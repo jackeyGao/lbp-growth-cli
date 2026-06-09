@@ -23,8 +23,13 @@ build/
 
 # Local credentials (should not be committed)
 .lbp_growth/
+.lbp-growth.json
 *.key
 *.secret
+
+# Environment variables
+.env
+.env.local
 
 # macOS
 .DS_Store
