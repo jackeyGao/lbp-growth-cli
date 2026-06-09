@@ -10,13 +10,13 @@
     "agent",
     "skill"
   ],
-  "homepage": "https://github.com/bytedance/lbp-growth-cli",
+  "homepage": "https://github.com/jackeyGao/lbp-growth-cli",
   "bugs": {
-    "url": "https://github.com/bytedance/lbp-growth-cli/issues"
+    "url": "https://github.com/jackeyGao/lbp-growth-cli/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bytedance/lbp-growth-cli.git"
+    "url": "https://github.com/jackeyGao/lbp-growth-cli.git"
   },
   "license": "MIT",
   "author": "LBP Growth Team",
