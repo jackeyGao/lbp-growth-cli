@@ -6,26 +6,11 @@ LBP 实验增长系统 CLI - Agent 友好的推送任务管理工具。
 
 ## 安装
 
-### 方式 1: 使用 npx（推荐）
-
-```bash
-npx lbp-growth-cli --help
-npx lbp-growth-cli auth check
-```
-
-### 方式 2: 全局安装
-
 ```bash
 npm install -g lbp-growth-cli
-lbp-growth --help
 ```
 
-### 方式 3: Skills 管理器
-
-```bash
-npx skills add bytedance/lbp-growth-cli
-npx skills run lbp-growth --help
-```
+安装完成后，可以使用 `lbp-growth` 或 `lbp` 命令。
 
 ## 前置要求
 
@@ -36,11 +21,13 @@ npx skills run lbp-growth --help
 export LBP_BEARER_TOKEN="your_bearer_token_here"
 
 # 方式 2: 全局配置文件
+mkdir -p ~/.lbp_growth
 echo '{ "bearerToken": "your_bearer_token_here" }' > ~/.lbp_growth/config.json
 chmod 600 ~/.lbp_growth/config.json
 
 # 方式 3: 项目级配置文件（仅当前项目）
-echo '{ "bearerToken": "your_bearer_token_here" }' > .lbp-growth.json
+cp .lbp-growth.json.example .lbp-growth.json
+# 编辑 .lbp-growth.json，填入你的 token
 ```
 
 ## 快速开始
@@ -179,7 +166,7 @@ lbp-growth-cli/
 │   ├── tasks.js            # 任务管理
 │   ├── csv.js              # CSV 工具
 │   └── review.js           # 数据复盘
-├── SKILL.md                 # 技能定义（for npx skills）
+├── SKILL.md                 # 技能定义
 ├── package.json
 └── README.md
 ```
