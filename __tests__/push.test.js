@@ -8,14 +8,14 @@ const push = require('../lib/push');
 
 // Mock the http module
 jest.mock('../lib/http', () => ({
-  httpPost: jest.fn(),
+  httpPostMultipart: jest.fn(),
 }));
 
-const { httpPost } = require('../lib/http');
+const { httpPostMultipart } = require('../lib/http');
 
 describe('push', () => {
   beforeEach(() => {
-    httpPost.mockClear();
+    httpPostMultipart.mockClear();
   });
 
   describe('createPush', () => {
@@ -82,7 +82,7 @@ describe('push', () => {
     });
 
     test('should push successfully when confirmed', async () => {
-      httpPost.mockResolvedValue({
+      httpPostMultipart.mockResolvedValue({
         status: 200,
         body: {
           taskId: 'task-123',
@@ -122,7 +122,7 @@ describe('push', () => {
     });
 
     test('should handle API error', async () => {
-      httpPost.mockResolvedValue({
+      httpPostMultipart.mockResolvedValue({
         status: 400,
         body: { error: 'Invalid params' },
       });

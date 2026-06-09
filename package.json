@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "chalk": "^4.1.2",
-    "commander": "^11.0.0"
+    "commander": "^11.0.0",
+    "lbp-growth-cli": "^0.1.2"
   },
   "devDependencies": {
     "jest": "^29.7.0"

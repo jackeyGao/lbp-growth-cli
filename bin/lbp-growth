@@ -10,7 +10,7 @@ const { Command } = require('commander');
 const chalk = require('chalk');
 const { loadAk, checkAuth, saveAuth, showAuth } = require('../lib/auth');
 const { createPush } = require('../lib/push');
-const { listTasks, updateTask, deleteTask, getBlocklist } = require('../lib/tasks');
+const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist } = require('../lib/tasks');
 const { generateReview } = require('../lib/review');
 const { splitCSV } = require('../lib/csv');
 
@@ -140,6 +140,16 @@ tasksCmd
   .action(async (taskId, options) => {
     const ak = requireAk();
     const result = await deleteTask(ak, taskId, options.confirm);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('realtime <taskId>')
+  .description('获取任务实时指标')
+  .action(async (taskId) => {
+    const ak = requireAk();
+    const result = await getTaskRealtime(ak, taskId);
     outputJSON(result);
     process.exit(result.ok ? 0 : 4);
   });
