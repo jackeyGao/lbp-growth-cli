@@ -128,6 +128,8 @@ lbp-growth push ... --confirm
 | `tasks update <taskId> [options]` | 更新任务指标（支持 `--push-count`, `--read-count`, `--click-count`, `--read-rate`, `--action-rate`, `--overall-rate`） |
 | `tasks delete <taskId> [--confirm]` | 删除草稿状态的任务 |
 | `tasks batch-confirm <taskIds...>` | 生成批量确认草稿任务的 URL（支持 1-20 个 taskId） |
+| `tasks csv-raw <taskId> -o <file>` | 下载任务原始 AppID 列表 CSV |
+| `tasks csv-failure <taskId> -o <file>` | 下载任务失败 AppID 列表 CSV |
 
 ```bash
 # 查询任务列表
@@ -144,6 +146,12 @@ lbp-growth tasks delete task_abc123 --confirm
 
 # 批量确认任务（生成 URL）
 lbp-growth tasks batch-confirm task_001 task_002 task_003
+
+# 下载原始 AppID 列表 CSV
+lbp-growth tasks csv-raw task_abc123 -o raw.csv
+
+# 下载失败 AppID 列表 CSV
+lbp-growth tasks csv-failure task_abc123 -o failure.csv
 ```
 
 **批量确认规则：**

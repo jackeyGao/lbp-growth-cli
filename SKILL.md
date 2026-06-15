@@ -145,6 +145,12 @@ lbp-growth tasks delete <TASK_ID> --confirm
 
 # 生成批量确认 URL（支持 1-20 个 taskId）
 lbp-growth tasks batch-confirm task_001 task_002 task_003
+
+# 下载原始 AppID 列表 CSV
+lbp-growth tasks csv-raw TASK_ID -o raw.csv
+
+# 下载失败 AppID 列表 CSV
+lbp-growth tasks csv-failure TASK_ID -o failure.csv
 ```
 
 ### 批量确认规则
@@ -226,6 +232,8 @@ lbp-growth blocklist -o blocklist.json
 | `tasks update <taskId> [options]` | 更新任务指标（支持 --push-count, --read-count, --click-count, --read-rate, --action-rate, --overall-rate） |
 | `tasks delete <taskId> [--confirm]` | 删除草稿状态的任务 |
 | `tasks batch-confirm <taskIds...>` | 生成批量确认草稿任务的 URL（1-20 个 taskId） |
+| `tasks csv-raw <taskId> -o <file>` | 下载任务原始 AppID 列表 CSV |
+| `tasks csv-failure <taskId> -o <file>` | 下载任务失败 AppID 列表 CSV |
 
 ### CSV 命令 - 文件处理
 

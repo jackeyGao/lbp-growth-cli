@@ -8,15 +8,17 @@ jest.mock('../lib/http', () => ({
   httpGet: jest.fn(),
   httpPut: jest.fn(),
   httpDelete: jest.fn(),
+  httpDownload: jest.fn(),
 }));
 
-const { httpGet, httpPut, httpDelete } = require('../lib/http');
+const { httpGet, httpPut, httpDelete, httpDownload } = require('../lib/http');
 
 describe('tasks', () => {
   beforeEach(() => {
     httpGet.mockClear();
     httpPut.mockClear();
     httpDelete.mockClear();
+    httpDownload.mockClear();
   });
 
   describe('listTasks', () => {
@@ -164,6 +166,70 @@ describe('tasks', () => {
 
       expect(result.ok).toBe(false);
       expect(result.hint).toContain('API Key');
+    });
+  });
+
+  describe('downloadTaskRawCsv', () => {
+    test('should download raw csv successfully', async () => {
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const tmpFile = path.join(os.tmpdir(), `raw_${Date.now()}.csv`);
+
+      httpDownload.mockResolvedValue({
+        status: 200,
+        outputPath: tmpFile,
+      });
+
+      const result = await tasks.downloadTaskRawCsv('test_ak', 'task1', tmpFile);
+
+      expect(result.ok).toBe(true);
+      expect(result.output_path).toBe(tmpFile);
+      expect(result.stage).toBe('download_raw_csv');
+    });
+
+    test('should handle 404 for raw csv', async () => {
+      httpDownload.mockResolvedValue({
+        status: 404,
+        body: { error: 'Not found' },
+      });
+
+      const result = await tasks.downloadTaskRawCsv('test_ak', 'bad_id', '/tmp/out.csv');
+
+      expect(result.ok).toBe(false);
+      expect(result.hint).toContain('没有源文件');
+    });
+  });
+
+  describe('downloadTaskFailureCsv', () => {
+    test('should download failure csv successfully', async () => {
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const tmpFile = path.join(os.tmpdir(), `failure_${Date.now()}.csv`);
+
+      httpDownload.mockResolvedValue({
+        status: 200,
+        outputPath: tmpFile,
+      });
+
+      const result = await tasks.downloadTaskFailureCsv('test_ak', 'task1', tmpFile);
+
+      expect(result.ok).toBe(true);
+      expect(result.output_path).toBe(tmpFile);
+      expect(result.stage).toBe('download_failure_csv');
+    });
+
+    test('should handle 404 for failure csv', async () => {
+      httpDownload.mockResolvedValue({
+        status: 404,
+        body: { error: 'Not found' },
+      });
+
+      const result = await tasks.downloadTaskFailureCsv('test_ak', 'bad_id', '/tmp/out.csv');
+
+      expect(result.ok).toBe(false);
+      expect(result.hint).toContain('没有失败记录');
     });
   });
 });
