@@ -151,6 +151,9 @@ lbp-growth tasks csv-raw TASK_ID -o raw.csv
 
 # 下载失败 AppID 列表 CSV
 lbp-growth tasks csv-failure TASK_ID -o failure.csv
+
+# 下载实时点击 BotID 列表 CSV
+lbp-growth tasks csv-realtime-click TASK_ID -o realtime_click.csv
 ```
 
 ### 批量确认规则
@@ -234,6 +237,7 @@ lbp-growth blocklist -o blocklist.json
 | `tasks batch-confirm <taskIds...>` | 生成批量确认草稿任务的 URL（1-20 个 taskId） |
 | `tasks csv-raw <taskId> -o <file>` | 下载任务原始 AppID 列表 CSV |
 | `tasks csv-failure <taskId> -o <file>` | 下载任务失败 AppID 列表 CSV |
+| `tasks csv-realtime-click <taskId> -o <file>` | 下载任务实时点击 BotID 列表 CSV |
 
 ### CSV 命令 - 文件处理
 

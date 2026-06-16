@@ -232,4 +232,35 @@ describe('tasks', () => {
       expect(result.hint).toContain('没有失败记录');
     });
   });
+
+  describe('downloadTaskRealtimeClickCsv', () => {
+    test('should download realtime click csv successfully', async () => {
+      const os = require('os');
+      const path = require('path');
+      const tmpFile = path.join(os.tmpdir(), `realtime_click_${Date.now()}.csv`);
+
+      httpDownload.mockResolvedValue({
+        status: 200,
+        outputPath: tmpFile,
+      });
+
+      const result = await tasks.downloadTaskRealtimeClickCsv('test_ak', 'task1', tmpFile);
+
+      expect(result.ok).toBe(true);
+      expect(result.output_path).toBe(tmpFile);
+      expect(result.stage).toBe('download_realtime_click_csv');
+    });
+
+    test('should handle 404 for realtime click csv', async () => {
+      httpDownload.mockResolvedValue({
+        status: 404,
+        body: { error: 'Not found' },
+      });
+
+      const result = await tasks.downloadTaskRealtimeClickCsv('test_ak', 'bad_id', '/tmp/out.csv');
+
+      expect(result.ok).toBe(false);
+      expect(result.hint).toContain('没有实时点击记录');
+    });
+  });
 });

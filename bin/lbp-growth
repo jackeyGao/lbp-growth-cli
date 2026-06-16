@@ -10,7 +10,7 @@ const { Command } = require('commander');
 const chalk = require('chalk');
 const { loadAk, loadCredentials, checkAuth, saveAuth, showAuth } = require('../lib/auth');
 const { createPush } = require('../lib/push');
-const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv } = require('../lib/tasks');
+const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv, downloadTaskRealtimeClickCsv } = require('../lib/tasks');
 const { generateReview } = require('../lib/review');
 const { splitCSV } = require('../lib/csv');
 
@@ -197,6 +197,17 @@ tasksCmd
   .action(async (taskId, options) => {
     const ak = requireAk();
     const result = await downloadTaskFailureCsv(ak, taskId, options.output);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('csv-realtime-click <taskId>')
+  .description('下载任务实时点击 BotID 列表 CSV')
+  .requiredOption('-o, --output <file>', '输出文件路径')
+  .action(async (taskId, options) => {
+    const ak = requireAk();
+    const result = await downloadTaskRealtimeClickCsv(ak, taskId, options.output);
     outputJSON(result);
     process.exit(result.ok ? 0 : 4);
   });
