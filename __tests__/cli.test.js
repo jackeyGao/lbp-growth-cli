@@ -3,6 +3,7 @@
  */
 const { execSync } = require('child_process');
 const path = require('path');
+const pkg = require('../package.json');
 
 const CLI_PATH = path.join(__dirname, '..', 'bin', 'lbp-growth');
 
@@ -20,7 +21,7 @@ describe('CLI Integration', () => {
   describe('help and version', () => {
     test('should show version', () => {
       const output = execSync(`node ${CLI_PATH} --version`, { encoding: 'utf8' });
-      expect(output).toContain('0.1.0');
+      expect(output).toContain(pkg.version);
     });
 
     test('should show help', () => {
@@ -57,7 +58,8 @@ describe('CLI Integration', () => {
       } catch (error) {
         output = error.stdout || error.stderr || '';
       }
-      expect(output).toContain('ak_masked');
+      expect(output).toContain('stage');
+      expect(output).toContain('auth');
     });
   });
 
@@ -104,13 +106,12 @@ describe('CLI Integration', () => {
       try {
         // Use --confirm to force actual push which requires BEARER_TOKEN
         execWithoutBearer(
-          `node ${CLI_PATH} push --name test --format card --content hello --apps app1 --confirm`
+          `node ${CLI_PATH} push --name test --format card --content '{"title":"hello"}' --apps cli_app1 --confirm`
         );
       } catch (error) {
         thrown = true;
         const output = error.stdout || error.stderr || error.message;
-        // push command checks AK first (dry-run), then BEARER_TOKEN when making HTTP request with --confirm
-        expect(output).toMatch(/NO_AK|BEARER_TOKEN|error|Missing/i);
+        expect(output).toMatch(/NO_CREDENTIALS|Bearer Token|error|Missing/i);
       }
       expect(thrown).toBe(true);
     });

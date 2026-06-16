@@ -8,14 +8,14 @@ const push = require('../lib/push');
 
 // Mock the http module
 jest.mock('../lib/http', () => ({
-  httpPostMultipart: jest.fn(),
+  httpPost: jest.fn(),
 }));
 
-const { httpPostMultipart } = require('../lib/http');
+const { httpPost } = require('../lib/http');
 
 describe('push', () => {
   beforeEach(() => {
-    httpPostMultipart.mockClear();
+    httpPost.mockClear();
   });
 
   describe('createPush', () => {
@@ -25,7 +25,7 @@ describe('push', () => {
         name: 'Test',
         formatType: 'card',
         content: null,
-        apps: 'app1,app2',
+        apps: 'cli_app1,cli_app2',
         confirm: false,
       });
 
@@ -40,7 +40,7 @@ describe('push', () => {
         name: 'Test',
         formatType: 'releaseNote',
         releaseNoteIds: null,
-        apps: 'app1,app2',
+        apps: 'cli_app1,cli_app2',
         confirm: false,
       });
 
@@ -54,7 +54,7 @@ describe('push', () => {
         ak: 'test_ak',
         name: 'Test',
         formatType: 'card',
-        content: 'hello',
+        content: '{"title":"hello"}',
         apps: null,
         csvPath: null,
         confirm: false,
@@ -70,8 +70,8 @@ describe('push', () => {
         ak: 'test_ak',
         name: 'Test Push',
         formatType: 'card',
-        content: 'Hello World',
-        apps: 'app1,app2,app3',
+        content: '{"title":"Hello World"}',
+        apps: 'cli_app1,cli_app2,cli_app3',
         confirm: false,
       });
 
@@ -82,7 +82,7 @@ describe('push', () => {
     });
 
     test('should push successfully when confirmed', async () => {
-      httpPostMultipart.mockResolvedValue({
+      httpPost.mockResolvedValue({
         status: 200,
         body: {
           taskId: 'task-123',
@@ -95,8 +95,8 @@ describe('push', () => {
         ak: 'test_ak',
         name: 'Test Push',
         formatType: 'card',
-        content: 'Hello World',
-        apps: 'app1,app2',
+        content: '{"title":"Hello World"}',
+        apps: 'cli_app1,cli_app2',
         confirm: true,
       });
 
@@ -110,8 +110,8 @@ describe('push', () => {
         ak: 'test_ak',
         name: 'Scheduled Push',
         formatType: 'card',
-        content: 'Hello',
-        apps: 'app1',
+        content: '{"title":"Hello"}',
+        apps: 'cli_app1',
         scheduleType: 'scheduled',
         scheduleTime: null,
         confirm: false,
@@ -122,7 +122,7 @@ describe('push', () => {
     });
 
     test('should handle API error', async () => {
-      httpPostMultipart.mockResolvedValue({
+      httpPost.mockResolvedValue({
         status: 400,
         body: { error: 'Invalid params' },
       });
@@ -131,8 +131,8 @@ describe('push', () => {
         ak: 'test_ak',
         name: 'Test',
         formatType: 'card',
-        content: 'Hello',
-        apps: 'app1',
+        content: '{"title":"Hello"}',
+        apps: 'cli_app1',
         confirm: true,
       });
 
@@ -142,13 +142,13 @@ describe('push', () => {
 
     test('should use csv file when provided', async () => {
       const tmpFile = path.join(os.tmpdir(), `test_csv_${Date.now()}.csv`);
-      fs.writeFileSync(tmpFile, 'app_id\napp1\napp2\napp3');
+      fs.writeFileSync(tmpFile, 'app_id\ncli_app1\ncli_app2\ncli_app3');
 
       const result = await push.createPush({
         ak: 'test_ak',
         name: 'CSV Push',
         formatType: 'card',
-        content: 'Hello',
+        content: '{"title":"Hello"}',
         csvPath: tmpFile,
         confirm: false,
       });
