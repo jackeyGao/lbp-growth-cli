@@ -130,7 +130,7 @@ lbp-growth push ... --confirm
 | `tasks batch-confirm <taskIds...>` | 生成批量确认草稿任务的 URL（支持 1-20 个 taskId） |
 | `tasks csv-raw <taskId> -o <file>` | 下载任务原始 AppID 列表 CSV |
 | `tasks csv-failure <taskId> -o <file>` | 下载任务失败 AppID 列表 CSV |
-| `tasks csv-realtime-click <taskId> -o <file>` | 下载任务实时点击 BotID 列表 CSV |
+| `tasks csv-realtime-click <taskId> -o <file>` | 下载任务实时点击 AppID 列表 CSV |
 
 ```bash
 # 查询任务列表
@@ -154,7 +154,7 @@ lbp-growth tasks csv-raw task_abc123 -o raw.csv
 # 下载失败 AppID 列表 CSV
 lbp-growth tasks csv-failure task_abc123 -o failure.csv
 
-# 下载实时点击 BotID 列表 CSV
+# 下载实时点击 AppID 列表 CSV
 lbp-growth tasks csv-realtime-click task_abc123 -o realtime_click.csv
 ```
 
