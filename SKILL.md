@@ -1,6 +1,6 @@
 ---
 name: lbp-growth
-description: LBP 实验增长系统 CLI - 推送任务管理、数据复盘、黑名单管理
+description: LBP 实验增长系统 CLI：推送任务管理、数据复盘、黑名单管理
 metadata:
   author: LBP Growth Team
   version: 0.2.0
@@ -29,7 +29,7 @@ npm install -g lbp-growth-cli
 
 ## 配置凭据
 
-### 方式 1: 使用 auth save 命令（推荐）
+### 方式 1：使用 auth save 命令（推荐）
 
 ```bash
 # 同时保存 API Key 和 Bearer Token（先验证，后保存）
@@ -39,7 +39,7 @@ lbp-growth auth save <API_KEY> <BEARER_TOKEN>
 lbp-growth auth save "your_api_key_here" "your_bearer_token_here"
 ```
 
-### 方式 2: 环境变量
+### 方式 2：环境变量
 
 ```bash
 export LBP_BEARER_TOKEN="your_bearer_token_here"
@@ -47,7 +47,7 @@ export LBP_BEARER_TOKEN="your_bearer_token_here"
 lbp-growth auth save <API_KEY>
 ```
 
-### 方式 3: 配置文件
+### 方式 3：配置文件
 
 ```bash
 # 全局配置文件
@@ -198,15 +198,15 @@ lbp-growth blocklist -o blocklist.json
 
 ## 命令参考
 
-### Auth 命令 - 凭据管理
+### Auth 命令：凭据管理
 
 | 命令 | 说明 |
 |------|------|
 | `auth check` | 检查 API Key 和 Bearer Token 状态 |
-| `auth save <API_KEY> <BEARER_TOKEN>` | 同时保存并验证 API Key 和 Bearer Token |
+| `auth save <API_KEY> [BEARER_TOKEN]` | 保存并验证 API Key 和 Bearer Token；未传 Bearer Token 时读取环境变量或配置文件 |
 | `auth show` | 显示当前配置的凭据（脱敏） |
 
-### Push 命令 - 创建推送
+### Push 命令：创建推送
 
 | 选项 | 说明 |
 |------|------|
@@ -226,7 +226,7 @@ lbp-growth blocklist -o blocklist.json
 - `fileContent`（内部自动处理）是 CSV 文件的 base64
 - CSV 格式要求：单列表，表头可选 `app_id`，每行内容以 `cli_` 开头
 
-### Tasks 命令 - 任务管理
+### Tasks 命令：任务管理
 
 | 命令 | 说明 |
 |------|------|
@@ -239,20 +239,20 @@ lbp-growth blocklist -o blocklist.json
 | `tasks csv-failure <taskId> -o <file>` | 下载任务失败 AppID 列表 CSV |
 | `tasks csv-realtime-click <taskId> -o <file>` | 下载任务实时点击 AppID 列表 CSV |
 
-### CSV 命令 - 文件处理
+### CSV 命令：文件处理
 
 | 命令 | 说明 |
 |------|------|
 | `csv split <input> [--out-dir] [--rows-per-file] [--prefix]` | 拆分大 CSV 文件 |
 
-### Review 命令 - 数据复盘
+### Review 命令：数据复盘
 
 | 选项 | 说明 |
 |------|------|
 | `--day <day>` | 复盘日期（YYYY-MM-DD，默认昨天） |
 | `--page-size <n>` | 分页大小（默认 200） |
 
-### Blocklist 命令 - 黑名单
+### Blocklist 命令：黑名单
 
 | 选项 | 说明 |
 |------|------|
@@ -271,13 +271,13 @@ if (!authResult.ok) {
 
 // 推送预览（content 必须是有效 JSON）
 const result = JSON.parse(execSync(
-  'lbp-growth push --name "测试" --format card --content \'{"title":"测试"}\' --apps app1,app2',
+  'lbp-growth push --name "测试" --format card --content \'{"title":"测试"}\' --apps cli_app1,cli_app2',
   { encoding: 'utf8' }
 ));
 console.log(`将推送至 ${result.request_preview.app_count} 个用户`);
 
 // 确认推送
-execSync('lbp-growth push --name "测试" --format card --content \'{"title":"测试"}\' --apps app1,app2 --confirm');
+execSync('lbp-growth push --name "测试" --format card --content \'{"title":"测试"}\' --apps cli_app1,cli_app2 --confirm');
 
 // 生成批量确认 URL
 const confirmResult = JSON.parse(execSync(

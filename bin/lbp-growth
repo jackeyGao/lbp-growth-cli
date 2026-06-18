@@ -9,10 +9,12 @@
 const { Command } = require('commander');
 const chalk = require('chalk');
 const { loadAk, loadCredentials, checkAuth, saveAuth, showAuth } = require('../lib/auth');
+const { getEffectiveBearerToken } = require('../lib/config');
 const { createPush } = require('../lib/push');
 const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv, downloadTaskRealtimeClickCsv } = require('../lib/tasks');
 const { generateReview } = require('../lib/review');
 const { splitCSV } = require('../lib/csv');
+const pkg = require('../package.json');
 
 const program = new Command();
 
@@ -22,7 +24,8 @@ function outputJSON(data) {
 
 function requireAk() {
   const creds = loadCredentials();
-  if (!creds.apiKey || !creds.bearerToken) {
+  const bearerToken = creds.bearerToken || getEffectiveBearerToken();
+  if (!creds.apiKey || !bearerToken) {
     outputJSON({
       ok: false,
       stage: 'auth',
@@ -37,7 +40,7 @@ function requireAk() {
 program
   .name('lbp-growth')
   .description('LBP Growth CLI - Agent 友好的推送任务管理工具')
-  .version('0.1.0');
+  .version(pkg.version);
 
 // Auth commands
 const authCmd = program.command('auth').description('API Key 凭据管理');
@@ -52,7 +55,7 @@ authCmd
   });
 
 authCmd
-  .command('save <apiKey> <bearerToken>')
+  .command('save <apiKey> [bearerToken]')
   .description('保存并校验 API Key 和 Bearer Token')
   .action(async (apiKey, bearerToken) => {
     const result = await saveAuth(apiKey, bearerToken);
