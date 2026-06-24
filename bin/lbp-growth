@@ -12,6 +12,7 @@ const { loadAk, loadCredentials, checkAuth, saveAuth, showAuth } = require('../l
 const { getEffectiveBearerToken } = require('../lib/config');
 const { createPush } = require('../lib/push');
 const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv, downloadTaskRealtimeClickCsv } = require('../lib/tasks');
+const { createBatchUnsendJob, getBatchUnsendStatus } = require('../lib/batch_unsend');
 const { generateReview } = require('../lib/review');
 const { splitCSV } = require('../lib/csv');
 const pkg = require('../package.json');
@@ -211,6 +212,35 @@ tasksCmd
   .action(async (taskId, options) => {
     const ak = requireAk();
     const result = await downloadTaskRealtimeClickCsv(ak, taskId, options.output);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('unsend <taskId>')
+  .description('撤回任务消息（CSV 批量输入，自动分片并发执行，支持断点续传）')
+  .requiredOption('--csv <file>', 'app_id CSV 文件路径')
+  .option('--concurrency <n>', '并发 worker 数', '3')
+  .option('--confirm', '确认执行真实撤回', false)
+  .action(async (taskId, options) => {
+    const ak = requireAk();
+    const result = await createBatchUnsendJob(
+      ak,
+      taskId,
+      options.csv,
+      parseInt(options.concurrency, 10),
+      options.confirm
+    );
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('unsend-status <taskId>')
+  .description('查看批量撤回任务进度及每批执行情况')
+  .option('--detail', '展示每批 app_ids 和接口返回详情', false)
+  .action(async (taskId, options) => {
+    const result = getBatchUnsendStatus(taskId, options.detail);
     outputJSON(result);
     process.exit(result.ok ? 0 : 4);
   });
