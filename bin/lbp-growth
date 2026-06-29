@@ -13,6 +13,7 @@ const { getEffectiveBearerToken } = require('../lib/config');
 const { createPush } = require('../lib/push');
 const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv, downloadTaskRealtimeClickCsv } = require('../lib/tasks');
 const { createBatchUnsendJob, getBatchUnsendStatus } = require('../lib/batch_unsend');
+const { syncTeaDaily } = require('../lib/tea');
 const { generateReview } = require('../lib/review');
 const { splitCSV } = require('../lib/csv');
 const pkg = require('../package.json');
@@ -243,6 +244,26 @@ tasksCmd
     const result = getBatchUnsendStatus(taskId, options.detail);
     outputJSON(result);
     process.exit(result.ok ? 0 : 4);
+  });
+
+// TEA commands
+const teaCmd = program.command('tea').description('TEA 数据同步');
+
+teaCmd
+  .command('daily')
+  .description('同步 TEA 平台预创建激活链接每日点击数据（仅 super_admin）')
+  .requiredOption('--date <date>', '日期（YYYY-MM-DD）')
+  .requiredOption('--open-from <openFrom>', '预创建激活链接标识')
+  .requiredOption('--pv <n>', '激活点击次数', (value) => parseInt(value, 10))
+  .action(async (options) => {
+    const ak = requireAk();
+    const result = await syncTeaDaily(ak, {
+      date: options.date,
+      openFrom: options.openFrom,
+      pv: options.pv,
+    });
+    outputJSON(result);
+    process.exit(result.ok ? 0 : (result.stage === 'args' ? 1 : 4));
   });
 
 // CSV commands
