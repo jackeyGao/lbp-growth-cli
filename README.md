@@ -183,6 +183,20 @@ lbp-growth tea daily \
 
 该命令会调用 `POST /openapi/tea/daily`，按 `date + open_from` 去重：已有记录更新 `pv`，不存在则新建。
 
+### TEA 数据查询
+
+```bash
+# 查询 TEA 每日点击数据
+lbp-growth tea list \
+  --start-date 2026-06-01 \
+  --end-date 2026-06-30 \
+  --open-from instruction_do_you_know_me \
+  --page 1 \
+  --page-size 100
+```
+
+该命令会调用 `GET /openapi/tea/daily`，支持按日期范围和标识过滤。
+
 ### CSV 命令：文件处理
 
 ```bash
