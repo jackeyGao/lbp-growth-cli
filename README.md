@@ -163,6 +163,18 @@ lbp-growth tasks csv-realtime-click task_abc123 -o realtime_click.csv
 - 任务创建时间必须在 **7 天内**
 - 单次最多处理 **20** 个任务
 
+### TEA 命令：每日点击数据同步
+
+```bash
+# 同步 TEA 平台预创建激活链接每日点击数据（仅 super_admin）
+lbp-growth tea daily \
+  --date 2026-06-01 \
+  --open-from instruction_do_you_know_me \
+  --pv 1286
+```
+
+该命令会调用 `POST /openapi/tea/daily`，按 `date + open_from` 去重：已有记录更新 `pv`，不存在则新建。
+
 ### CSV 命令：文件处理
 
 ```bash
