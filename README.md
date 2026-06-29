@@ -124,6 +124,8 @@ lbp-growth push ... --confirm
 | 命令 | 说明 |
 |------|------|
 | `tasks list [--day] [--page] [--page-size]` | 查询推送任务列表 |
+| `tasks get <taskId>` | 获取任务详情 |
+| `tasks batches <taskId> [--page] [--page-size]` | 获取任务批次列表 |
 | `tasks realtime <taskId>` | 获取任务实时指标 |
 | `tasks update <taskId> [options]` | 更新任务指标（支持 `--push-count`, `--read-count`, `--click-count`, `--read-rate`, `--action-rate`, `--overall-rate`） |
 | `tasks delete <taskId> [--confirm]` | 删除草稿状态的任务 |
@@ -135,6 +137,12 @@ lbp-growth push ... --confirm
 ```bash
 # 查询任务列表
 lbp-growth tasks list --day 2026-06-09
+
+# 获取任务详情
+lbp-growth tasks get task_abc123
+
+# 获取任务批次列表
+lbp-growth tasks batches task_abc123 --page 1 --page-size 20
 
 # 获取任务实时指标
 lbp-growth tasks realtime task_abc123

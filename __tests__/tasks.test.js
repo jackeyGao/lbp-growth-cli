@@ -53,6 +53,66 @@ describe('tasks', () => {
     });
   });
 
+  describe('getTask', () => {
+    test('should return task detail on success', async () => {
+      httpGet.mockResolvedValue({
+        status: 200,
+        body: { id: 'task1', name: 'Task 1', status: 'completed', totalCount: 100 },
+      });
+
+      const result = await tasks.getTask('test_ak', 'task1');
+
+      expect(result.ok).toBe(true);
+      expect(result.stage).toBe('get');
+      expect(result.task.id).toBe('task1');
+    });
+
+    test('should provide hint on 404', async () => {
+      httpGet.mockResolvedValue({
+        status: 404,
+        body: { error: 'Not found' },
+      });
+
+      const result = await tasks.getTask('test_ak', 'bad_id');
+
+      expect(result.ok).toBe(false);
+      expect(result.stage).toBe('get');
+      expect(result.hint).toContain('不存在');
+    });
+  });
+
+  describe('listTaskBatches', () => {
+    test('should return batches list on success', async () => {
+      const mockBatches = [
+        { id: 'batch1', taskId: 'task1', batchIndex: 0, totalCount: 10, successCount: 10, status: 'completed' },
+      ];
+
+      httpGet.mockResolvedValue({
+        status: 200,
+        body: { items: mockBatches, total: 1, page: 1, pageSize: 20 },
+      });
+
+      const result = await tasks.listTaskBatches('test_ak', 'task1', { page: 1, pageSize: 20 });
+
+      expect(result.ok).toBe(true);
+      expect(result.stage).toBe('batches');
+      expect(result.items).toHaveLength(1);
+      expect(result.total).toBe(1);
+    });
+
+    test('should handle permission denied', async () => {
+      httpGet.mockResolvedValue({
+        status: 403,
+        body: { error: 'Forbidden' },
+      });
+
+      const result = await tasks.listTaskBatches('test_ak', 'task1');
+
+      expect(result.ok).toBe(false);
+      expect(result.hint).toContain('无权');
+    });
+  });
+
   describe('updateTask', () => {
     test('should return error when no fields provided', async () => {
       const result = await tasks.updateTask('test_ak', 'task1', {});

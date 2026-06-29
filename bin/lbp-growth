@@ -11,7 +11,7 @@ const chalk = require('chalk');
 const { loadAk, loadCredentials, checkAuth, saveAuth, showAuth } = require('../lib/auth');
 const { getEffectiveBearerToken } = require('../lib/config');
 const { createPush } = require('../lib/push');
-const { listTasks, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv, downloadTaskRealtimeClickCsv } = require('../lib/tasks');
+const { listTasks, getTask, listTaskBatches, updateTask, getTaskRealtime, deleteTask, getBlocklist, generateBatchConfirmUrl, downloadTaskRawCsv, downloadTaskFailureCsv, downloadTaskRealtimeClickCsv } = require('../lib/tasks');
 const { createBatchUnsendJob, getBatchUnsendStatus } = require('../lib/batch_unsend');
 const { syncTeaDaily } = require('../lib/tea');
 const { generateReview } = require('../lib/review');
@@ -120,6 +120,31 @@ tasksCmd
     const ak = requireAk();
     const result = await listTasks(ak, {
       day: options.day,
+      page: parseInt(options.page),
+      pageSize: parseInt(options.pageSize),
+    });
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('get <taskId>')
+  .description('获取任务详情')
+  .action(async (taskId) => {
+    const ak = requireAk();
+    const result = await getTask(ak, taskId);
+    outputJSON(result);
+    process.exit(result.ok ? 0 : 4);
+  });
+
+tasksCmd
+  .command('batches <taskId>')
+  .description('获取任务批次列表')
+  .option('--page <n>', '页码', '1')
+  .option('--page-size <n>', '每页数量', '20')
+  .action(async (taskId, options) => {
+    const ak = requireAk();
+    const result = await listTaskBatches(ak, taskId, {
       page: parseInt(options.page),
       pageSize: parseInt(options.pageSize),
     });
