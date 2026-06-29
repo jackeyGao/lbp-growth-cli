@@ -141,7 +141,7 @@ tasksCmd
   .command('batches <taskId>')
   .description('获取任务批次列表')
   .option('--page <n>', '页码', '1')
-  .option('--page-size <n>', '每页数量', '20')
+  .option('--page-size <n>', '每页数量', '100')
   .action(async (taskId, options) => {
     const ak = requireAk();
     const result = await listTaskBatches(ak, taskId, {

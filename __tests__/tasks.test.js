@@ -100,6 +100,18 @@ describe('tasks', () => {
       expect(result.total).toBe(1);
     });
 
+    test('should use default page size 100 when omitted', async () => {
+      httpGet.mockResolvedValue({
+        status: 200,
+        body: { items: [], total: 0, page: 1, pageSize: 100 },
+      });
+
+      const result = await tasks.listTaskBatches('test_ak', 'task1');
+
+      expect(result.ok).toBe(true);
+      expect(result.page_size).toBe(100);
+    });
+
     test('should handle permission denied', async () => {
       httpGet.mockResolvedValue({
         status: 403,
