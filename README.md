@@ -142,7 +142,7 @@ lbp-growth tasks list --day 2026-06-09
 lbp-growth tasks get task_abc123
 
 # 获取任务批次列表
-lbp-growth tasks batches task_abc123 --page 1 --page-size 20
+lbp-growth tasks batches task_abc123 --page 1 --page-size 100
 
 # 获取任务实时指标
 lbp-growth tasks realtime task_abc123
